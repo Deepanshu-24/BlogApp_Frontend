@@ -47,7 +47,8 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
   }, [post.id]);
   
   // Use preview comments initially, switch to fetched comments when expanded
-  const [comments, setComments] = useState<CommentResponse[]>((post as any).preview_comments || []);
+  const initialComments = Array.isArray((post as any).preview_comments) ? (post as any).preview_comments : [];
+  const [comments, setComments] = useState<CommentResponse[]>(initialComments);
 
   useEffect(() => {
     // When comments section is expanded, fetch and use all comments
@@ -84,11 +85,11 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
 
   // Only refetch when component mounts to get fresh data
   useEffect(() => {
-    if (showComments && fetchedComments.length === 0) {
+    if (showComments && (!fetchedComments || (Array.isArray(fetchedComments) && fetchedComments.length === 0))) {
       console.log("[PostCard] Fetching full comments for post", post.id);
       refetchComments();
     }
-  }, [post.id, showComments, refetchComments, fetchedComments.length]);
+  }, [post.id, showComments, refetchComments]);
 
   useEffect(() => {
     if (userLikeStatus?.has_liked !== undefined) {
