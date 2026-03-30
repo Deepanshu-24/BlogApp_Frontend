@@ -1,4 +1,4 @@
-# Blottr - BlogApp_Frontend
+# BlogApp_Frontend
 
 A modern, responsive blogging platform frontend built with **React 19**, **TypeScript**, and **Vite**. Featuring a comprehensive UI component library, real-time data synchronization, and seamless user authentication.
 
