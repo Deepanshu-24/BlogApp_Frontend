@@ -35,7 +35,18 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
   const { data: likeData } = useLikeCount(post.id);
   const { data: userLikeStatus } = useUserLikeStatus(post.id);
   const { data: fetchedComments, isLoading: commentsLoading } = useComments(post.id);
-  const comments = fetchedComments || [];
+  let comments: CommentResponse[] = [];
+  if (Array.isArray(fetchedComments)) {
+    comments = fetchedComments;
+  } else if (fetchedComments && typeof fetchedComments === 'object') {
+    if ('comments' in fetchedComments && Array.isArray((fetchedComments as any).comments)) {
+      comments = (fetchedComments as any).comments;
+    } else if ('data' in fetchedComments && Array.isArray((fetchedComments as any).data)) {
+      comments = (fetchedComments as any).data;
+    } else if ('id' in fetchedComments) {
+      comments = [fetchedComments as any];
+    }
+  }
 
   useEffect(() => {
     if (userLikeStatus?.has_liked !== undefined) {
@@ -108,6 +119,48 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
     if (confirm("ADMIN: Delete this post? This action is irreversible.")) {
       adminDeletePost.mutate(post.id);
     }
+  };
+
+  const renderComment = (comment: CommentResponse) => {
+    const isOwnComment = user?.id === comment.user_id;
+    return (
+      <div key={comment.id} className="flex gap-3 mb-1">
+        <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{
+          background: 'rgba(160, 120, 60, 0.08)',
+          border: '1px solid rgba(160, 120, 60, 0.15)',
+        }}>
+          <User className="w-3.5 h-3.5 text-amber-800/35" />
+        </div>
+        <div className="bg-white/50 rounded-lg rounded-tl-sm px-4 py-3 border border-amber-800/8 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm" style={{ color: 'rgba(60, 45, 30, 0.75)' }}>{comment.content}</p>
+            <div className="flex gap-1 shrink-0">
+              {isOwnComment && (
+                <button
+                  onClick={() => handleDeleteComment(comment.id)}
+                  className="text-amber-800/20 hover:text-red-600 transition-colors"
+                  title="Delete comment"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+              {isAdmin && !isOwnComment && (
+                <button
+                  onClick={() => handleAdminDeleteComment(comment.id)}
+                  className="text-amber-400/50 hover:text-amber-500 transition-colors"
+                  title="Admin: Delete comment"
+                >
+                  <ShieldAlert className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-amber-800/25 mt-1">
+            {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+          </p>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -262,7 +315,13 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
           </>
         )}
 
-        <div className="mt-5 pt-4 flex items-center gap-3" style={{ borderTop: '1px solid rgba(160, 130, 90, 0.2)' }}>
+        {!commentsLoading && comments.length > 0 && (
+          <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(160, 130, 90, 0.2)' }}>
+            {renderComment(comments[0])}
+          </div>
+        )}
+
+        <div className={`mt-2 pt-2 flex items-center gap-3 ${comments.length === 0 ? 'mt-5 pt-4 border-t border-amber-800/20' : ''}`} style={{ borderTop: comments.length === 0 ? '1px solid rgba(160, 130, 90, 0.2)' : 'none' }}>
           <Button
             variant="ghost"
             size="sm"
@@ -282,7 +341,7 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
           >
             <MessageCircle className="w-4 h-4" />
             <span className="font-medium text-xs">
-              {comments.length > 0 ? `${comments.length} comment${comments.length !== 1 ? "s" : ""}` : "Comment"}
+              {comments.length > 1 ? `View ${comments.length - 1} more comment${comments.length - 1 !== 1 ? "s" : ""}` : "Comment"}
             </span>
           </Button>
         </div>
@@ -329,50 +388,10 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
             <div className="space-y-4">
               {commentsLoading ? (
                 <p className="text-sm text-amber-800/40 text-center py-4">Loading comments...</p>
-              ) : comments.map((comment) => {
-                const isOwnComment = user?.id === comment.user_id;
-                return (
-                  <div key={comment.id} className="flex gap-3">
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{
-                      background: 'rgba(160, 120, 60, 0.08)',
-                      border: '1px solid rgba(160, 120, 60, 0.15)',
-                    }}>
-                      <User className="w-3.5 h-3.5 text-amber-800/35" />
-                    </div>
-                    <div className="bg-white/50 rounded-lg rounded-tl-sm px-4 py-3 border border-amber-800/8 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm" style={{ color: 'rgba(60, 45, 30, 0.75)' }}>{comment.content}</p>
-                        <div className="flex gap-1 shrink-0">
-                          {isOwnComment && (
-                            <button
-                              onClick={() => handleDeleteComment(comment.id)}
-                              className="text-amber-800/20 hover:text-red-600 transition-colors"
-                              title="Delete comment"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          )}
-                          {isAdmin && !isOwnComment && (
-                            <button
-                              onClick={() => handleAdminDeleteComment(comment.id)}
-                              className="text-amber-400/50 hover:text-amber-500 transition-colors"
-                              title="Admin: Delete comment"
-                            >
-                              <ShieldAlert className="w-3 h-3" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-xs text-amber-800/25 mt-1">
-                        {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-              {!commentsLoading && comments.length === 0 && user && (
+              ) : comments.slice(1).map(renderComment)}
+              {!commentsLoading && comments.length <= 1 && user && (
                 <p className="text-sm text-amber-800/30 text-center italic py-2">
-                  No comments yet. Be the first!
+                  No more comments to show.
                 </p>
               )}
             </div>

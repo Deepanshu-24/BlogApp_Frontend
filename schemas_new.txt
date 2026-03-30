@@ -1,0 +1,443 @@
+{
+  "Body_create_post_posts__post": {
+    "properties": {
+      "title": {
+        "type": "string",
+        "title": "Title"
+      },
+      "content": {
+        "type": "string",
+        "title": "Content"
+      },
+      "file": {
+        "anyOf": [
+          {
+            "type": "string",
+            "contentMediaType": "application/octet-stream"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "File"
+      }
+    },
+    "type": "object",
+    "required": [
+      "title",
+      "content"
+    ],
+    "title": "Body_create_post_posts__post"
+  },
+  "Body_login_for_access_token_auth_token_post": {
+    "properties": {
+      "grant_type": {
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^password$"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Grant Type"
+      },
+      "username": {
+        "type": "string",
+        "title": "Username"
+      },
+      "password": {
+        "type": "string",
+        "format": "password",
+        "title": "Password"
+      },
+      "scope": {
+        "type": "string",
+        "title": "Scope",
+        "default": ""
+      },
+      "client_id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Client Id"
+      },
+      "client_secret": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "format": "password",
+        "title": "Client Secret"
+      }
+    },
+    "type": "object",
+    "required": [
+      "username",
+      "password"
+    ],
+    "title": "Body_login_for_access_token_auth_token_post"
+  },
+  "Body_update_post_posts__post_id__put": {
+    "properties": {
+      "title": {
+        "type": "string",
+        "title": "Title"
+      },
+      "content": {
+        "type": "string",
+        "title": "Content"
+      },
+      "image_url": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Image Url"
+      },
+      "file": {
+        "anyOf": [
+          {
+            "type": "string",
+            "contentMediaType": "application/octet-stream"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "File"
+      }
+    },
+    "type": "object",
+    "required": [
+      "title",
+      "content"
+    ],
+    "title": "Body_update_post_posts__post_id__put"
+  },
+  "CommentRequest": {
+    "properties": {
+      "content": {
+        "type": "string",
+        "maxLength": 100,
+        "minLength": 3,
+        "title": "Content"
+      }
+    },
+    "type": "object",
+    "required": [
+      "content"
+    ],
+    "title": "CommentRequest"
+  },
+  "CommentResponse": {
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Id"
+      },
+      "content": {
+        "type": "string",
+        "title": "Content"
+      },
+      "user_id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "User Id"
+      },
+      "post_id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Post Id"
+      },
+      "created_at": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Created At"
+      },
+      "updated_at": {
+        "anyOf": [
+          {
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Updated At"
+      }
+    },
+    "type": "object",
+    "required": [
+      "id",
+      "content",
+      "user_id",
+      "post_id",
+      "created_at",
+      "updated_at"
+    ],
+    "title": "CommentResponse"
+  },
+  "CreateUserRequest": {
+    "properties": {
+      "username": {
+        "type": "string",
+        "maxLength": 50,
+        "minLength": 3,
+        "title": "Username"
+      },
+      "email": {
+        "type": "string",
+        "title": "Email"
+      },
+      "password": {
+        "type": "string",
+        "minLength": 5,
+        "title": "Password"
+      }
+    },
+    "type": "object",
+    "required": [
+      "username",
+      "email",
+      "password"
+    ],
+    "title": "CreateUserRequest"
+  },
+  "HTTPValidationError": {
+    "properties": {
+      "detail": {
+        "items": {
+          "$ref": "#/components/schemas/ValidationError"
+        },
+        "type": "array",
+        "title": "Detail"
+      }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+  },
+  "PostFeedResponse": {
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Id"
+      },
+      "title": {
+        "type": "string",
+        "title": "Title"
+      },
+      "content": {
+        "type": "string",
+        "title": "Content"
+      },
+      "image_url": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Image Url"
+      },
+      "author_id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Author Id"
+      },
+      "posted_at": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Posted At"
+      },
+      "author_username": {
+        "type": "string",
+        "title": "Author Username"
+      }
+    },
+    "type": "object",
+    "required": [
+      "id",
+      "title",
+      "content",
+      "image_url",
+      "author_id",
+      "posted_at",
+      "author_username"
+    ],
+    "title": "PostFeedResponse"
+  },
+  "PostResponse": {
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Id"
+      },
+      "title": {
+        "type": "string",
+        "title": "Title"
+      },
+      "content": {
+        "type": "string",
+        "title": "Content"
+      },
+      "image_url": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Image Url"
+      },
+      "author_id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Author Id"
+      },
+      "posted_at": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Posted At"
+      }
+    },
+    "type": "object",
+    "required": [
+      "id",
+      "title",
+      "content",
+      "image_url",
+      "author_id",
+      "posted_at"
+    ],
+    "title": "PostResponse"
+  },
+  "Token": {
+    "properties": {
+      "access_token": {
+        "type": "string",
+        "title": "Access Token"
+      },
+      "token_type": {
+        "type": "string",
+        "title": "Token Type"
+      }
+    },
+    "type": "object",
+    "required": [
+      "access_token",
+      "token_type"
+    ],
+    "title": "Token"
+  },
+  "UserResponse": {
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Id"
+      },
+      "username": {
+        "type": "string",
+        "title": "Username"
+      },
+      "email": {
+        "type": "string",
+        "title": "Email"
+      },
+      "is_admin": {
+        "type": "boolean",
+        "title": "Is Admin"
+      }
+    },
+    "type": "object",
+    "required": [
+      "id",
+      "username",
+      "email",
+      "is_admin"
+    ],
+    "title": "UserResponse"
+  },
+  "UserVerification": {
+    "properties": {
+      "password": {
+        "type": "string",
+        "title": "Password"
+      },
+      "new_password": {
+        "type": "string",
+        "minLength": 6,
+        "title": "New Password"
+      }
+    },
+    "type": "object",
+    "required": [
+      "password",
+      "new_password"
+    ],
+    "title": "UserVerification"
+  },
+  "ValidationError": {
+    "properties": {
+      "loc": {
+        "items": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "type": "array",
+        "title": "Location"
+      },
+      "msg": {
+        "type": "string",
+        "title": "Message"
+      },
+      "type": {
+        "type": "string",
+        "title": "Error Type"
+      },
+      "input": {
+        "title": "Input"
+      },
+      "ctx": {
+        "type": "object",
+        "title": "Context"
+      }
+    },
+    "type": "object",
+    "required": [
+      "loc",
+      "msg",
+      "type"
+    ],
+    "title": "ValidationError"
+  }
+}
