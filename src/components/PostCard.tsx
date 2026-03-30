@@ -34,7 +34,7 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
   const adminDeleteComment = useAdminDeleteComment();
   const { data: likeData } = useLikeCount(post.id);
   const { data: userLikeStatus } = useUserLikeStatus(post.id);
-  const { data: fetchedComments, isLoading: commentsLoading } = useComments(post.id);
+  const { data: fetchedComments, isLoading: commentsLoading, refetch: refetchComments } = useComments(post.id);
   let comments: CommentResponse[] = [];
   if (Array.isArray(fetchedComments)) {
     comments = fetchedComments;
@@ -47,6 +47,11 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
       comments = [fetchedComments as any];
     }
   }
+
+  useEffect(() => {
+    // Ensure comments are fresh when component mounts
+    refetchComments();
+  }, [post.id, refetchComments]);
 
   useEffect(() => {
     if (userLikeStatus?.has_liked !== undefined) {
@@ -315,35 +320,31 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
           </>
         )}
 
-        {!commentsLoading && comments.length > 0 && (
-          <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(160, 130, 90, 0.2)' }}>
-            {renderComment(comments[0])}
+        <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(160, 130, 90, 0.2)' }}>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`gap-2 rounded-md ${isLiked ? "text-rose-600 hover:text-rose-700" : "text-amber-800/35 hover:text-amber-800/60"} hover:bg-amber-800/5`}
+              onClick={handleLike}
+              disabled={!user}
+            >
+              <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+              <span className="font-medium text-xs">{likeData?.likes ?? 0}</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`gap-2 rounded-md ${showComments ? "text-amber-800 bg-amber-800/5" : "text-amber-800/35"} hover:text-amber-800/60 hover:bg-amber-800/5`}
+              onClick={() => setShowComments(!showComments)}
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span className="font-medium text-xs">
+                {comments.length > 0 ? `${comments.length} Comment${comments.length !== 1 ? "s" : ""} ${showComments ? "∧" : "∨"}` : "No comments"}
+              </span>
+            </Button>
           </div>
-        )}
-
-        <div className={`mt-2 pt-2 flex items-center gap-3 ${comments.length === 0 ? 'mt-5 pt-4 border-t border-amber-800/20' : ''}`} style={{ borderTop: comments.length === 0 ? '1px solid rgba(160, 130, 90, 0.2)' : 'none' }}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`gap-2 rounded-md ${isLiked ? "text-rose-600 hover:text-rose-700" : "text-amber-800/35 hover:text-amber-800/60"} hover:bg-amber-800/5`}
-            onClick={handleLike}
-            disabled={!user}
-          >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-            <span className="font-medium text-xs">{likeData?.likes ?? 0}</span>
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`gap-2 rounded-md ${showComments ? "text-amber-800 bg-amber-800/5" : "text-amber-800/35"} hover:text-amber-800/60 hover:bg-amber-800/5`}
-            onClick={() => setShowComments(!showComments)}
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span className="font-medium text-xs">
-              {comments.length > 1 ? `View ${comments.length - 1} more comment${comments.length - 1 !== 1 ? "s" : ""}` : "Comment"}
-            </span>
-          </Button>
         </div>
       </div>
 
@@ -359,6 +360,10 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
               background: 'rgba(245, 238, 225, 0.5)',
             }}
           >
+            <h3 className="text-sm font-semibold mb-4" style={{ color: 'rgba(60, 45, 30, 0.8)' }}>
+              Top Comments
+            </h3>
+
             {user ? (
               <form onSubmit={handleCommentSubmit} className="flex gap-3 mb-6">
                 <Input
@@ -388,10 +393,11 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
             <div className="space-y-4">
               {commentsLoading ? (
                 <p className="text-sm text-amber-800/40 text-center py-4">Loading comments...</p>
-              ) : comments.slice(1).map(renderComment)}
-              {!commentsLoading && comments.length <= 1 && user && (
-                <p className="text-sm text-amber-800/30 text-center italic py-2">
-                  No more comments to show.
+              ) : comments.length > 0 ? (
+                comments.map(renderComment)
+              ) : (
+                <p className="text-sm text-amber-800/30 text-center italic py-4">
+                  No comments yet. Be the first to comment!
                 </p>
               )}
             </div>

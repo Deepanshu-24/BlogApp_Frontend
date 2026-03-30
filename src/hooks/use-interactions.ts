@@ -60,5 +60,7 @@ export function useComments(postId: string) {
   return useQuery({
     queryKey: ["comments", postId],
     queryFn: () => fetchApi<CommentResponse[]>(`/comment/post/${postId}/comments`),
+    staleTime: 30 * 1000, // Consider data fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
   });
 }
