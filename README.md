@@ -100,7 +100,7 @@ pnpm preview
 ```
 
 ## Project Structure
-
+```
 src/
 ├── components/
 │   ├── Navbar.tsx          # Navigation component
@@ -124,7 +124,7 @@ src/
 ├── App.tsx                 # Root component
 ├── main.tsx                # Entry point
 └── index.css               # Global styles
-
+```
 
 ## Backend Integration
 
