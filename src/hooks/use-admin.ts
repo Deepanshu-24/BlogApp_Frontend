@@ -14,7 +14,7 @@ export function useAdminDeleteUser() {
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      return fetchApi(`/admin/users/${userId}`, { method: "DELETE" });
+      return fetchApi(`/admin/user/${userId}`, { method: "DELETE" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
