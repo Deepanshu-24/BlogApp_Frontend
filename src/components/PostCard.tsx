@@ -2,21 +2,22 @@ import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Heart, MessageCircle, Trash2, User, Send, ShieldAlert, Pencil, Feather } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useUser } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useDeletePost, useUpdatePost } from "@/hooks/use-posts";
-import { useToggleLike, useLikeCount, useUserLikeStatus, useCreateComment, useDeleteComment } from "@/hooks/use-interactions";
+import { useToggleLike, useLikeCount, useUserLikeStatus, useCreateComment, useDeleteComment, useComments } from "@/hooks/use-interactions";
 import { useAdminDeletePost, useAdminDeleteComment } from "@/hooks/use-admin";
 import type { PostFeedResponse, CommentResponse } from "@/lib/types";
 
 export function PostCard({ post }: { post: PostFeedResponse }) {
   const { data: user } = useUser();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [showComments, setShowComments] = useState(false);
   const [commentContent, setCommentContent] = useState("");
-  const [localComments, setLocalComments] = useState<CommentResponse[]>([]);
   const [isLiked, setIsLiked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(post.title);
@@ -33,6 +34,8 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
   const adminDeleteComment = useAdminDeleteComment();
   const { data: likeData } = useLikeCount(post.id);
   const { data: userLikeStatus } = useUserLikeStatus(post.id);
+  const { data: fetchedComments, isLoading: commentsLoading } = useComments(post.id);
+  const comments = fetchedComments || [];
 
   useEffect(() => {
     if (userLikeStatus?.has_liked !== undefined) {
@@ -58,8 +61,8 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
     createComment.mutate(
       { postId: post.id, content: commentContent },
       {
-        onSuccess: (newComment) => {
-          setLocalComments((prev) => [...prev, newComment]);
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["comments", post.id] });
           setCommentContent("");
         },
       }
@@ -70,7 +73,7 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
     if (confirm("Delete this comment?")) {
       deleteComment.mutate(commentId, {
         onSuccess: () => {
-          setLocalComments((prev) => prev.filter((c) => c.id !== commentId));
+          queryClient.invalidateQueries({ queryKey: ["comments", post.id] });
         },
       });
     }
@@ -80,7 +83,7 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
     if (confirm("ADMIN: Delete this comment?")) {
       adminDeleteComment.mutate(commentId, {
         onSuccess: () => {
-          setLocalComments((prev) => prev.filter((c) => c.id !== commentId));
+          queryClient.invalidateQueries({ queryKey: ["comments", post.id] });
         },
       });
     }
@@ -270,7 +273,7 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
           >
             <MessageCircle className="w-4 h-4" />
             <span className="font-medium text-xs">
-              {localComments.length > 0 ? `${localComments.length} comment${localComments.length !== 1 ? "s" : ""}` : "Comment"}
+              {comments.length > 0 ? `${comments.length} comment${comments.length !== 1 ? "s" : ""}` : "Comment"}
             </span>
           </Button>
         </div>
@@ -315,7 +318,9 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
             )}
 
             <div className="space-y-4">
-              {localComments.map((comment) => {
+              {commentsLoading ? (
+                <p className="text-sm text-amber-800/40 text-center py-4">Loading comments...</p>
+              ) : comments.map((comment) => {
                 const isOwnComment = user?.id === comment.user_id;
                 return (
                   <div key={comment.id} className="flex gap-3">
@@ -356,7 +361,7 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
                   </div>
                 );
               })}
-              {localComments.length === 0 && user && (
+              {!commentsLoading && comments.length === 0 && user && (
                 <p className="text-sm text-amber-800/30 text-center italic py-2">
                   No comments yet. Be the first!
                 </p>

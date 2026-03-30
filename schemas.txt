@@ -1,0 +1,168 @@
+{
+  "PostFeedResponse": {
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Id"
+      },
+      "title": {
+        "type": "string",
+        "title": "Title"
+      },
+      "content": {
+        "type": "string",
+        "title": "Content"
+      },
+      "image_url": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Image Url"
+      },
+      "author_id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Author Id"
+      },
+      "posted_at": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Posted At"
+      },
+      "author_username": {
+        "type": "string",
+        "title": "Author Username"
+      }
+    },
+    "type": "object",
+    "required": [
+      "id",
+      "title",
+      "content",
+      "image_url",
+      "author_id",
+      "posted_at",
+      "author_username"
+    ],
+    "title": "PostFeedResponse"
+  },
+  "PostResponse": {
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Id"
+      },
+      "title": {
+        "type": "string",
+        "title": "Title"
+      },
+      "content": {
+        "type": "string",
+        "title": "Content"
+      },
+      "image_url": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Image Url"
+      },
+      "author_id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Author Id"
+      },
+      "posted_at": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Posted At"
+      }
+    },
+    "type": "object",
+    "required": [
+      "id",
+      "title",
+      "content",
+      "image_url",
+      "author_id",
+      "posted_at"
+    ],
+    "title": "PostResponse"
+  },
+  "CommentResponse": {
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Id"
+      },
+      "content": {
+        "type": "string",
+        "title": "Content"
+      },
+      "user_id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "User Id"
+      },
+      "post_id": {
+        "type": "string",
+        "format": "uuid",
+        "title": "Post Id"
+      },
+      "created_at": {
+        "type": "string",
+        "format": "date-time",
+        "title": "Created At"
+      },
+      "updated_at": {
+        "anyOf": [
+          {
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Updated At"
+      }
+    },
+    "type": "object",
+    "required": [
+      "id",
+      "content",
+      "user_id",
+      "post_id",
+      "created_at",
+      "updated_at"
+    ],
+    "title": "CommentResponse"
+  },
+  "CommentRequest": {
+    "properties": {
+      "content": {
+        "type": "string",
+        "maxLength": 100,
+        "minLength": 3,
+        "title": "Content"
+      }
+    },
+    "type": "object",
+    "required": [
+      "content"
+    ],
+    "title": "CommentRequest"
+  }
+}

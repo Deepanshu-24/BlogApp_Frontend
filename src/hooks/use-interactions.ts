@@ -54,3 +54,11 @@ export function useDeleteComment() {
     },
   });
 }
+
+
+export function useComments(postId: string) {
+  return useQuery({
+    queryKey: ["comments", postId],
+    queryFn: () => fetchApi<CommentResponse[]>(`/comment/post/${postId}/comments`),
+  });
+}
