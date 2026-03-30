@@ -1,0 +1,18 @@
+/healthy: get
+/auth/: post
+/auth/token: post
+/admin/users: get
+/admin/post/{post_id}: delete
+/admin/comments/{comment_id}: delete
+/admin/user/{user_id}: delete
+/user/: get
+/user/password: put
+/user/me: delete
+/posts/: get, post
+/posts/feed: get
+/posts/{post_id}: get, put, delete
+/like/post/{post_id}/like: post
+/like/post/{post_id}/like_count: get
+/like/post/{post_id}/user_like_status: get
+/comment/post/{post_id}/comment: post
+/comment/comments/{comment_id}: put, delete

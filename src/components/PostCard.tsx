@@ -61,7 +61,10 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
     createComment.mutate(
       { postId: post.id, content: commentContent },
       {
-        onSuccess: () => {
+        onSuccess: (newComment) => {
+          queryClient.setQueryData(["comments", post.id], (oldData: CommentResponse[] | undefined) => {
+            return oldData ? [...oldData, newComment] : [newComment];
+          });
           queryClient.invalidateQueries({ queryKey: ["comments", post.id] });
           setCommentContent("");
         },
@@ -73,6 +76,9 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
     if (confirm("Delete this comment?")) {
       deleteComment.mutate(commentId, {
         onSuccess: () => {
+          queryClient.setQueryData(["comments", post.id], (oldData: CommentResponse[] | undefined) => {
+            return oldData ? oldData.filter(c => c.id !== commentId) : [];
+          });
           queryClient.invalidateQueries({ queryKey: ["comments", post.id] });
         },
       });
@@ -83,6 +89,9 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
     if (confirm("ADMIN: Delete this comment?")) {
       adminDeleteComment.mutate(commentId, {
         onSuccess: () => {
+          queryClient.setQueryData(["comments", post.id], (oldData: CommentResponse[] | undefined) => {
+            return oldData ? oldData.filter(c => c.id !== commentId) : [];
+          });
           queryClient.invalidateQueries({ queryKey: ["comments", post.id] });
         },
       });
