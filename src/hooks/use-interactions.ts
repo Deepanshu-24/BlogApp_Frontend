@@ -62,7 +62,12 @@ export function useComments(postId: string) {
     queryFn: async () => {
       try {
         const data = await fetchApi<CommentResponse[]>(`/comment/post/${postId}/comments`);
-        console.log(`[Comments] Fetched for post ${postId}:`, data);
+        console.log(`[Comments] Fetched for post ${postId}:`, {
+          data,
+          isArray: Array.isArray(data),
+          length: Array.isArray(data) ? data.length : 'N/A',
+          sample: Array.isArray(data) && data.length > 0 ? data[0] : 'no data',
+        });
         return data;
       } catch (error) {
         console.error(`[Comments] Error fetching for post ${postId}:`, error);

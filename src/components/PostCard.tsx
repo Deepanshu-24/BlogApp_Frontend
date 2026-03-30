@@ -36,8 +36,18 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
   const { data: userLikeStatus } = useUserLikeStatus(post.id);
   const { data: fetchedComments, isLoading: commentsLoading, refetch: refetchComments } = useComments(post.id);
   
+  // Debug the post structure
+  useEffect(() => {
+    console.log(`[PostCard Debug] Post ${post.id}:`, {
+      title: post.title,
+      comment_count: (post as any).comment_count,
+      preview_comments: (post as any).preview_comments,
+      preview_comments_length: (post as any).preview_comments?.length,
+    });
+  }, [post.id]);
+  
   // Use preview comments initially, switch to fetched comments when expanded
-  const [comments, setComments] = useState<CommentResponse[]>(post.preview_comments || []);
+  const [comments, setComments] = useState<CommentResponse[]>((post as any).preview_comments || []);
 
   useEffect(() => {
     // When comments section is expanded, fetch and use all comments
@@ -396,7 +406,11 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
             >
               <MessageCircle className="w-4 h-4" />
               <span className="font-medium text-xs">
-                {post.comment_count > 0 ? `${post.comment_count} Comment${post.comment_count !== 1 ? "s" : ""} ${showComments ? "∧" : "∨"}` : "No comments"}
+                {(() => {
+                  // Use comment_count from backend, fallback to fetched comments, then preview comments
+                  const count = (post as any).comment_count !== undefined ? (post as any).comment_count : (comments.length || 0);
+                  return count > 0 ? `${count} Comment${count !== 1 ? "s" : ""} ${showComments ? "∧" : "∨"}` : "No comments";
+                })()}
               </span>
             </Button>
           </div>
@@ -452,11 +466,17 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
                 <>
                   {/* Show all fetched comments when expanded */}
                   {comments.map(renderComment)}
-                  {post.comment_count > comments.length && (
-                    <p className="text-xs text-amber-800/40 text-center py-2 italic">
-                      Showing {comments.length} of {post.comment_count} comments
-                    </p>
-                  )}
+                  {(() => {
+                    const totalCount = (post as any).comment_count !== undefined ? (post as any).comment_count : null;
+                    if (totalCount && totalCount > comments.length) {
+                      return (
+                        <p className="text-xs text-amber-800/40 text-center py-2 italic">
+                          Showing {comments.length} of {totalCount} comments
+                        </p>
+                      );
+                    }
+                    return null;
+                  })()}
                 </>
               ) : (
                 <p className="text-sm text-amber-800/30 text-center italic py-4">

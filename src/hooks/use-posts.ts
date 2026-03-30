@@ -9,7 +9,21 @@ export function useFeed() {
     queryKey: ["posts", "feed"],
     queryFn: async ({ pageParam = 0 }: { pageParam: number }) => {
       const offset = pageParam * PAGE_SIZE;
-      return fetchApi<PostFeedResponse[]>(`/posts/feed?limit=${PAGE_SIZE}&offset=${offset}`);
+      const response = await fetchApi<PostFeedResponse[]>(`/posts/feed?limit=${PAGE_SIZE}&offset=${offset}`);
+      
+      console.log(`[useFeed] Response for page ${pageParam}:`, {
+        count: response?.length || 0,
+        sample: response && response.length > 0 ? {
+          id: response[0].id,
+          title: response[0].title,
+          author_username: response[0].author_username,
+          comment_count: (response[0] as any).comment_count,
+          preview_comments: (response[0] as any).preview_comments?.length,
+          fullSample: response[0],
+        } : 'no data',
+      });
+      
+      return response;
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage: PostFeedResponse[], allPages: PostFeedResponse[][]) => {
