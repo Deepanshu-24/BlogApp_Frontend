@@ -66,17 +66,17 @@ export function useComments(postId: string) {
           data,
           isArray: Array.isArray(data),
           length: Array.isArray(data) ? data.length : 'N/A',
-          sample: Array.isArray(data) && data.length > 0 ? data[0] : 'no data',
         });
-        return data;
+        return data || [];
       } catch (error) {
         console.error(`[Comments] Error fetching for post ${postId}:`, error);
-        throw error;
+        // Return empty array on error - use preview_comments from feed instead
+        return [];
       }
     },
-    staleTime: 0, // Always consider data stale - force refetch
-    gcTime: 0, // Don't cache
-    retry: 2,
-    retryDelay: 500,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
+    retryDelay: 300,
   });
 }

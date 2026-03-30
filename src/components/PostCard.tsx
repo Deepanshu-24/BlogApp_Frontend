@@ -51,33 +51,44 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
 
   useEffect(() => {
     // When comments section is expanded, fetch and use all comments
-    if (showComments && fetchedComments) {
-      let allComments: CommentResponse[] = [];
-      if (Array.isArray(fetchedComments)) {
-        allComments = fetchedComments;
-      } else if (fetchedComments && typeof fetchedComments === 'object') {
-        if ('comments' in fetchedComments && Array.isArray((fetchedComments as any).comments)) {
-          allComments = (fetchedComments as any).comments;
-        } else if ('data' in fetchedComments && Array.isArray((fetchedComments as any).data)) {
-          allComments = (fetchedComments as any).data;
-        } else if ('id' in fetchedComments) {
-          allComments = [fetchedComments as any];
+    if (showComments) {
+      if (fetchedComments && fetchedComments.length > 0) {
+        // If we got comments from the fetch, use them
+        let allComments: CommentResponse[] = [];
+        if (Array.isArray(fetchedComments)) {
+          allComments = fetchedComments;
+        } else if (fetchedComments && typeof fetchedComments === 'object') {
+          if ('comments' in fetchedComments && Array.isArray((fetchedComments as any).comments)) {
+            allComments = (fetchedComments as any).comments;
+          } else if ('data' in fetchedComments && Array.isArray((fetchedComments as any).data)) {
+            allComments = (fetchedComments as any).data;
+          } else if ('id' in fetchedComments) {
+            allComments = [fetchedComments as any];
+          }
         }
+        if (allComments.length > 0) {
+          setComments(allComments);
+        } else {
+          // Fallback to preview comments
+          setComments(post.preview_comments || []);
+        }
+      } else {
+        // When collapsed or fetch fails, show only preview comments
+        setComments(post.preview_comments || []);
       }
-      setComments(allComments);
-    } else if (!showComments) {
+    } else {
       // When collapsed, show only preview comments
       setComments(post.preview_comments || []);
     }
   }, [showComments, fetchedComments, post.preview_comments]);
 
+  // Only refetch when component mounts to get fresh data
   useEffect(() => {
-    // Refetch comments when opening the section
-    if (showComments) {
-      console.log("[PostCard] User opened comments, refetching...");
+    if (showComments && fetchedComments.length === 0) {
+      console.log("[PostCard] Fetching full comments for post", post.id);
       refetchComments();
     }
-  }, [showComments, refetchComments]);
+  }, [post.id, showComments, refetchComments, fetchedComments.length]);
 
   useEffect(() => {
     if (userLikeStatus?.has_liked !== undefined) {
@@ -183,6 +194,7 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
   const renderComment = (comment: CommentResponse) => {
     const isOwnComment = user?.id === comment.user_id;
     const canDeleteComment = isOwnComment || isAuthor || isAdmin;
+    const displayName = (comment as any).user_username || "User";
     
     return (
       <div key={comment.id} className="flex gap-3 mb-4">
@@ -196,7 +208,7 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1">
               <p className="text-xs font-semibold text-amber-800/70 mb-1">
-                {comment.user_username || "Anonymous"}
+                {displayName}
               </p>
               <p className="text-sm" style={{ color: 'rgba(60, 45, 30, 0.75)' }}>{comment.content}</p>
             </div>

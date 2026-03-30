@@ -35,8 +35,8 @@ export interface PostFeedResponse {
   author_id: string;
   posted_at: string;
   author_username: string;
-  comment_count: number;
-  preview_comments: CommentResponse[];
+  comment_count?: number;
+  preview_comments?: CommentResponse[];
 }
 
 export interface CommentResponse {
