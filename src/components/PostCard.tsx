@@ -54,6 +54,14 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
   }, [post.id, refetchComments]);
 
   useEffect(() => {
+    // Refetch comments when opening the section
+    if (showComments) {
+      console.log("[PostCard] User opened comments, refetching...");
+      refetchComments();
+    }
+  }, [showComments, refetchComments]);
+
+  useEffect(() => {
     if (userLikeStatus?.has_liked !== undefined) {
       setIsLiked(userLikeStatus.has_liked);
     }
@@ -74,15 +82,43 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
     e.preventDefault();
     if (!commentContent.trim() || !user) return;
 
+    const commentText = commentContent;
+    setCommentContent(""); // Clear immediately for UX
+
     createComment.mutate(
-      { postId: post.id, content: commentContent },
+      { postId: post.id, content: commentText },
       {
         onSuccess: (newComment) => {
+          console.log("[Comment] Successfully posted:", newComment);
+          
+          // First, update local cache
           queryClient.setQueryData(["comments", post.id], (oldData: CommentResponse[] | undefined) => {
-            return oldData ? [...oldData, newComment] : [newComment];
+            const updated = oldData ? [...oldData, newComment] : [newComment];
+            console.log("[Comment] Updated local cache. Total comments:", updated.length);
+            return updated;
           });
-          queryClient.invalidateQueries({ queryKey: ["comments", post.id] });
-          setCommentContent("");
+          
+          // Then, refetch from server after a short delay to ensure DB is updated
+          setTimeout(() => {
+            console.log("[Comment] Refetching comments from server...");
+            refetchComments().then(() => {
+              console.log("[Comment] Refetch complete, comments are now synced from server");
+            });
+          }, 1000);
+          
+          toast({ 
+            title: "Comment posted successfully!",
+            description: "Your comment will appear below."
+          });
+        },
+        onError: (error: any) => {
+          console.error("[Comment] Failed to post:", error);
+          setCommentContent(commentText); // Restore text on error
+          toast({ 
+            title: "Failed to post comment", 
+            description: error.message || "Something went wrong",
+            variant: "destructive"
+          });
         },
       }
     );

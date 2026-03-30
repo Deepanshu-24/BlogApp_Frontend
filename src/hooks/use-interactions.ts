@@ -59,8 +59,19 @@ export function useDeleteComment() {
 export function useComments(postId: string) {
   return useQuery({
     queryKey: ["comments", postId],
-    queryFn: () => fetchApi<CommentResponse[]>(`/comment/post/${postId}/comments`),
-    staleTime: 30 * 1000, // Consider data fresh for 30 seconds
-    gcTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
+    queryFn: async () => {
+      try {
+        const data = await fetchApi<CommentResponse[]>(`/comment/post/${postId}/comments`);
+        console.log(`[Comments] Fetched for post ${postId}:`, data);
+        return data;
+      } catch (error) {
+        console.error(`[Comments] Error fetching for post ${postId}:`, error);
+        throw error;
+      }
+    },
+    staleTime: 0, // Always consider data stale - force refetch
+    gcTime: 0, // Don't cache
+    retry: 2,
+    retryDelay: 500,
   });
 }
