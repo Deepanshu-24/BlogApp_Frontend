@@ -1,4 +1,4 @@
-export const API_BASE = (window as any).BLOG_API_URL || "http://localhost:8000";
+export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export function getAuthHeaders() {
   const token = localStorage.getItem("access_token");
