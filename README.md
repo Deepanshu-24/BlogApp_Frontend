@@ -13,7 +13,7 @@ A modern, responsive blogging platform frontend built with **React 19**, **TypeS
 - **Form Validation** - Robust form handling with React Hook Form and Zod validation
 - **Interactive Components** - 40+ accessible, customizable UI components from Radix UI primitives
 - **Smooth Animations** - Delightful micro-interactions powered by Framer Motion
-- **Toast Notifications** - User feedback system with Sonner toast notifications
+- **Toast Notifications** - User feedback system with Sonner toast notifications.
 
 ## 🛠 Tech Stack
 
