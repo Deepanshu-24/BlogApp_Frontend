@@ -46,7 +46,7 @@ export interface CommentResponse {
   post_id: string;
   created_at: string;
   updated_at?: string | null;
-  user_username?: string;
+  username?: string;
 }
 
 export interface LikeCountResponse {

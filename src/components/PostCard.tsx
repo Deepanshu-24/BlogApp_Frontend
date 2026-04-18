@@ -195,7 +195,11 @@ export function PostCard({ post }: { post: PostFeedResponse }) {
   const renderComment = (comment: CommentResponse) => {
     const isOwnComment = user?.id === comment.user_id;
     const canDeleteComment = isOwnComment || isAuthor || isAdmin;
-    const displayName = (comment as any).user_username || "User";
+    const displayName = comment.username || (comment as any).user?.username || (comment as any).author_username || "User";
+    
+    if (displayName === "User") {
+      console.log("[renderComment Debug] Missing username in comment object:", comment);
+    }
     
     return (
       <div key={comment.id} className="flex gap-3 mb-4">
