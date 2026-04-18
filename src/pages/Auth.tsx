@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Feather, ArrowRight, Loader2, BookOpen, Bookmark } from "lucide-react";
+import { Feather, ArrowRight, Loader2, BookOpen, Bookmark, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +60,7 @@ function AuthLayout({
   mode, onSubmit, isPending, username, setUsername, password, setPassword, email, setEmail 
 }: any) {
   const isLogin = mode === "login";
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="min-h-screen grid md:grid-cols-2 bg-gradient-auth">
@@ -173,15 +174,24 @@ function AuthLayout({
 
             <div className="space-y-2">
               <label className="text-sm font-semibold ml-1 text-amber-900/60 tracking-wide uppercase" style={{ fontSize: '0.7rem', letterSpacing: '0.08em' }}>Password</label>
-              <Input 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="••••••••" 
-                required 
-                minLength={5}
-                className="bg-white/50 border-amber-800/15 focus:border-amber-700/30 focus:ring-amber-700/10 rounded-lg"
-              />
+              <div className="relative">
+                <Input 
+                  type={showPassword ? "text" : "password"} 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  placeholder="••••••••" 
+                  required 
+                  minLength={5}
+                  className="bg-white/50 border-amber-800/15 focus:border-amber-700/30 focus:ring-amber-700/10 rounded-lg pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-900/40 hover:text-amber-900/60 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             <Button type="submit" className="w-full rounded-lg h-14 text-lg wax-seal-btn font-display font-semibold tracking-wide" disabled={isPending}>
